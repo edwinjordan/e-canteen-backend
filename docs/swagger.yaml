@@ -1,0 +1,1141 @@
+basePath: /api
+definitions:
+  entity.CreateOrderDetailRequest:
+    properties:
+      order_detail_price:
+        example: 15000
+        type: number
+      order_detail_product_varian_id:
+        example: 0058ae56cc7a089dc710b0fff0f1e312
+        type: string
+      order_detail_qty:
+        example: 1
+        type: integer
+      order_detail_subtotal:
+        example: 15000
+        type: number
+    type: object
+  entity.CreateOrderRequest:
+    properties:
+      order_address_id:
+        example: ""
+        type: string
+      order_customer_id:
+        example: 1bee61b0-c11f-11f0-9feb-482ae3a0bcc9
+        type: string
+      order_delivery_type:
+        example: pickup
+        type: string
+      order_details:
+        items:
+          $ref: '#/definitions/entity.CreateOrderDetailRequest'
+        type: array
+      order_discount:
+        example: 0
+        type: number
+      order_notes:
+        example: ""
+        type: string
+      temp_cart_order_id:
+        example: ORDER-GUEST-1763326901093-JEGMFSW
+        type: string
+    type: object
+  entity.Customer:
+    properties:
+      alamat:
+        items:
+          $ref: '#/definitions/entity.CustomerAddress'
+        type: array
+      customer_class:
+        type: string
+      customer_code:
+        type: string
+      customer_create_at:
+        type: string
+      customer_dob:
+        $ref: '#/definitions/sql.NullString'
+      customer_email:
+        type: string
+      customer_gender:
+        type: string
+      customer_id:
+        type: string
+      customer_last_status:
+        type: integer
+      customer_major_id:
+        type: string
+      customer_name:
+        type: string
+      customer_password:
+        type: string
+      customer_phonenumber:
+        type: string
+      customer_profile_pic:
+        type: string
+      customer_profile_pic_path:
+        type: string
+      customer_status:
+        type: integer
+      customer_update_at:
+        type: string
+      jurusan:
+        $ref: '#/definitions/entity.Major'
+    type: object
+  entity.CustomerAddress:
+    properties:
+      address_city:
+        type: string
+      address_city_id:
+        type: string
+      address_create_at:
+        type: string
+      address_customer_id:
+        type: string
+      address_district:
+        type: string
+      address_district_id:
+        type: string
+      address_id:
+        type: string
+      address_main:
+        type: integer
+      address_name:
+        type: string
+      address_postal_code:
+        type: string
+      address_province:
+        type: string
+      address_province_id:
+        type: string
+      address_text:
+        type: string
+      address_update_at:
+        type: string
+      address_village:
+        type: string
+      address_village_id:
+        type: string
+    type: object
+  entity.CustomerOrder:
+    properties:
+      address:
+        $ref: '#/definitions/entity.CustomerAddress'
+      customer:
+        $ref: '#/definitions/entity.CustomerResponse'
+      order_address_id:
+        type: string
+      order_cancel_notes:
+        type: string
+      order_create_at:
+        type: string
+      order_customer_id:
+        type: string
+      order_delivery_type:
+        type: string
+      order_discount:
+        type: number
+      order_finished_by:
+        type: string
+      order_finished_datetime:
+        $ref: '#/definitions/sql.NullTime'
+      order_id:
+        type: string
+      order_inv_number:
+        type: string
+      order_notes:
+        type: string
+      order_processed_by:
+        type: string
+      order_processed_datetime:
+        $ref: '#/definitions/sql.NullTime'
+      order_status:
+        type: integer
+      order_subtotal:
+        type: number
+      order_total:
+        type: number
+      order_total_item:
+        type: integer
+      orderDetail:
+        items:
+          $ref: '#/definitions/entity.CustomerOrderDetail'
+        type: array
+    type: object
+  entity.CustomerOrderDetail:
+    properties:
+      order_detail_id:
+        type: string
+      order_detail_parent_id:
+        type: string
+      order_detail_price:
+        type: number
+      order_detail_product_varian_id:
+        type: string
+      order_detail_qty:
+        type: integer
+      order_detail_subtotal:
+        type: number
+    type: object
+  entity.CustomerResponse:
+    properties:
+      alamat:
+        items:
+          $ref: '#/definitions/entity.CustomerAddress'
+        type: array
+      customer_class:
+        type: string
+      customer_code:
+        type: string
+      customer_create_at:
+        type: string
+      customer_dob:
+        $ref: '#/definitions/sql.NullString'
+      customer_email:
+        type: string
+      customer_gender:
+        type: string
+      customer_id:
+        type: string
+      customer_last_status:
+        type: integer
+      customer_major_id:
+        type: string
+      customer_name:
+        type: string
+      customer_phonenumber:
+        type: string
+      customer_profile_pic:
+        type: string
+      customer_profile_pic_path:
+        type: string
+      customer_status:
+        type: integer
+      customer_update_at:
+        type: string
+      jurusan:
+        $ref: '#/definitions/entity.MajorResponse'
+    type: object
+  entity.DashboardStats:
+    properties:
+      monthly_sales:
+        items:
+          $ref: '#/definitions/entity.MonthlySalesData'
+        type: array
+      top_products:
+        items:
+          $ref: '#/definitions/entity.TopProductData'
+        type: array
+      total_customers:
+        type: integer
+      total_sales:
+        type: number
+      total_transactions:
+        type: integer
+    type: object
+  entity.Login:
+    properties:
+      user_device_metadata:
+        type: string
+      user_email:
+        type: string
+      user_fcmtoken:
+        type: string
+      user_id:
+        type: string
+      user_password:
+        type: string
+    required:
+    - user_email
+    - user_password
+    type: object
+  entity.Major:
+    properties:
+      major_id:
+        type: string
+      major_name:
+        type: string
+    type: object
+  entity.MajorResponse:
+    properties:
+      major_id:
+        type: string
+      major_name:
+        type: string
+    type: object
+  entity.MonthlySalesData:
+    properties:
+      month:
+        type: integer
+      month_name:
+        type: string
+      total_sales:
+        type: number
+      year:
+        type: integer
+    type: object
+  entity.Pegawai:
+    properties:
+      pegawai_code:
+        type: string
+      pegawai_gender:
+        type: string
+      pegawai_id:
+        type: string
+      pegawai_name:
+        type: string
+      pegawai_phonenumber:
+        type: string
+    type: object
+  entity.Product:
+    properties:
+      category_name:
+        type: string
+      product_category_id:
+        type: string
+      product_code:
+        type: string
+      product_create_at:
+        type: string
+      product_delete_at:
+        type: string
+      product_desc:
+        type: string
+      product_id:
+        type: string
+      product_name:
+        type: string
+      product_photo:
+        type: string
+      product_update_at:
+        type: string
+      varian:
+        items:
+          $ref: '#/definitions/entity.Varian'
+        type: array
+    type: object
+  entity.TempCart:
+    properties:
+      product_varian:
+        $ref: '#/definitions/entity.Varian'
+      temp_cart_id:
+        type: string
+      temp_cart_order_id:
+        type: string
+      temp_cart_product_varian_id:
+        type: string
+      temp_cart_qty:
+        type: integer
+      temp_cart_user_id:
+        type: string
+    type: object
+  entity.TopProductData:
+    properties:
+      product_id:
+        type: string
+      product_name:
+        type: string
+      total_quantity:
+        type: integer
+      total_sales:
+        type: number
+      variant_name:
+        type: string
+    type: object
+  entity.Transaction:
+    properties:
+      customer:
+        $ref: '#/definitions/entity.CustomerResponse'
+      trans_create_at:
+        type: string
+      trans_customer_id:
+        type: string
+      trans_detail:
+        items:
+          $ref: '#/definitions/entity.TransactionDetail'
+        type: array
+      trans_discount:
+        type: number
+      trans_id:
+        type: string
+      trans_invoice:
+        type: string
+      trans_order_id:
+        type: string
+      trans_product_total:
+        type: integer
+      trans_qty_total:
+        type: integer
+      trans_received_total:
+        type: number
+      trans_refund_total:
+        type: number
+      trans_status:
+        type: integer
+      trans_subtotal:
+        type: number
+      trans_total:
+        type: number
+      trans_user_id:
+        type: string
+      user:
+        $ref: '#/definitions/entity.User'
+    type: object
+  entity.TransactionDetail:
+    properties:
+      trans_detail_id:
+        type: string
+      trans_detail_parent_id:
+        type: string
+      trans_detail_price:
+        type: number
+      trans_detail_product_varian_id:
+        type: string
+      trans_detail_qty:
+        type: integer
+      trans_detail_subtotal:
+        type: number
+    type: object
+  entity.User:
+    properties:
+      pegawai:
+        $ref: '#/definitions/entity.Pegawai'
+      user_email:
+        type: string
+      user_has_mobile_access:
+        type: integer
+      user_id:
+        type: string
+      user_name:
+        type: string
+      user_password:
+        type: string
+      user_pegawai_id:
+        type: string
+      user_role_id:
+        type: string
+    type: object
+  entity.Varian:
+    properties:
+      product_id:
+        type: string
+      product_name:
+        type: string
+      product_varian_id:
+        type: string
+      product_varian_price:
+        type: integer
+      product_varian_qty_booth:
+        type: integer
+      product_varian_qty_left:
+        type: integer
+      product_varian_qty_warehouse:
+        type: integer
+      varian_id:
+        type: string
+      varian_name:
+        type: string
+    type: object
+  entity.VersionAdmin:
+    properties:
+      version_chagelog:
+        type: string
+      version_code:
+        type: integer
+      version_datetime:
+        type: string
+      version_id:
+        type: integer
+      version_number:
+        type: string
+    type: object
+  entity.VersionShop:
+    properties:
+      version_chagelog:
+        type: string
+      version_code:
+        type: integer
+      version_datetime:
+        type: string
+      version_id:
+        type: integer
+      version_number:
+        type: string
+    type: object
+  handler.WebResponse:
+    properties:
+      data: {}
+      error:
+        type: boolean
+      message:
+        type: string
+    type: object
+  sql.NullString:
+    properties:
+      string:
+        type: string
+      valid:
+        description: Valid is true if String is not NULL
+        type: boolean
+    type: object
+  sql.NullTime:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+host: 127.0.0.1:3000
+info:
+  contact:
+    email: support@ecanteen.com
+    name: API Support
+  description: API documentation for E-Canteen Cashier System - A comprehensive canteen
+    management solution
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: E-Canteen Cashier API
+  version: 1.2.0
+paths:
+  /customer:
+    get:
+      description: Retrieve all customers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Customers list
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.Customer'
+                  type: array
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get all customers
+      tags:
+      - Customer
+    post:
+      consumes:
+      - application/json
+      description: Register a new customer
+      parameters:
+      - description: Customer data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Customer'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Customer registered
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.Customer'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      summary: Register customer
+      tags:
+      - Customer
+  /customer/{customerId}:
+    delete:
+      description: Delete customer by ID
+      parameters:
+      - description: Customer ID
+        in: path
+        name: customerId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Customer deleted
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+        "404":
+          description: Customer not found
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete customer
+      tags:
+      - Customer
+    get:
+      description: Retrieve customer details by ID
+      parameters:
+      - description: Customer ID
+        in: path
+        name: customerId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Customer details
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.Customer'
+              type: object
+        "404":
+          description: Customer not found
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: Get customer by ID
+      tags:
+      - Customer
+    put:
+      consumes:
+      - application/json
+      description: Update customer information
+      parameters:
+      - description: Customer ID
+        in: path
+        name: customerId
+        required: true
+        type: string
+      - description: Customer data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Customer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Customer updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.Customer'
+              type: object
+        "404":
+          description: Customer not found
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: Update customer
+      tags:
+      - Customer
+  /customer/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate customer and get JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful with JWT token
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      summary: Customer login
+      tags:
+      - Customer
+  /customer/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout customer and invalidate token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: Customer logout
+      tags:
+      - Customer
+  /dashboard/stats:
+    get:
+      description: Get comprehensive dashboard statistics including total sales, transactions,
+        customers, monthly sales chart, and top 10 products
+      parameters:
+      - description: 'Year for monthly sales data (default: current year)'
+        in: query
+        name: year
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Dashboard statistics
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.DashboardStats'
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: Get dashboard statistics
+      tags:
+      - Dashboard
+  /kasir/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate kasir user and get JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful with JWT token
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      summary: User login (Kasir)
+      tags:
+      - Authentication
+  /kasir/logout:
+    put:
+      consumes:
+      - application/json
+      description: Logout kasir user and invalidate token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: User logout (Kasir)
+      tags:
+      - Authentication
+  /kasir/transaction:
+    post:
+      consumes:
+      - application/json
+      description: Create a new cashier transaction
+      parameters:
+      - description: Transaction data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Transaction'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Transaction created
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.Transaction'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: Create transaction
+      tags:
+      - Transactions
+  /kasir/transaction/{transId}:
+    get:
+      description: Retrieve transaction details by ID
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: transId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transaction details
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.Transaction'
+              type: object
+        "404":
+          description: Transaction not found
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: Get transaction by ID
+      tags:
+      - Transactions
+  /kasir/transaction_detail:
+    get:
+      description: Retrieve transaction detail items
+      parameters:
+      - description: Transaction ID
+        in: query
+        name: trans_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transaction details
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.TransactionDetail'
+                  type: array
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get transaction details
+      tags:
+      - Transactions
+  /kasir/version:
+    get:
+      description: Get current admin application version
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Version info
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.VersionAdmin'
+              type: object
+      summary: Get admin app version
+      tags:
+      - Version
+  /order:
+    post:
+      consumes:
+      - application/json
+      description: Create a new order with order details
+      parameters:
+      - description: Order request payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CreateOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.CustomerOrder'
+              type: object
+        "400":
+          description: Invalid request or insufficient stock
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new customer order
+      tags:
+      - Order
+  /order_report:
+    get:
+      description: Get customer orders filtered by date range (start_date and/or end_date)
+      parameters:
+      - description: Start date (YYYY-MM-DD format)
+        in: query
+        name: start_date
+        type: string
+      - description: End date (YYYY-MM-DD format)
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order report
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.CustomerOrder'
+                  type: array
+              type: object
+        "400":
+          description: Invalid request - start_date or end_date required
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: Get order report by date range
+      tags:
+      - Order
+  /products:
+    get:
+      description: Retrieve all products with their variants
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Products list
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.Product'
+                  type: array
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get all products
+      tags:
+      - Products
+  /shop/version:
+    get:
+      description: Get current customer shop application version
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Version info
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.VersionShop'
+              type: object
+      summary: Get shop app version
+      tags:
+      - Version
+  /tempcart:
+    post:
+      consumes:
+      - application/json
+      description: Add product variant to temporary cart
+      parameters:
+      - description: Cart item
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.TempCart'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Item added to cart
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.TempCart'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: Add item to cart
+      tags:
+      - Cart
+  /tempcart/{productVarianId}/{userId}:
+    delete:
+      description: Remove product variant from temporary cart
+      parameters:
+      - description: Product Variant ID
+        in: path
+        name: productVarianId
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Item removed from cart
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+        "404":
+          description: Cart item not found
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove item from cart
+      tags:
+      - Cart
+    put:
+      consumes:
+      - application/json
+      description: Update quantity of item in temporary cart
+      parameters:
+      - description: Product Variant ID
+        in: path
+        name: productVarianId
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Cart item updated
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+        "404":
+          description: Cart item not found
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: Update cart item quantity
+      tags:
+      - Cart
+  /tempcart/{userId}:
+    get:
+      description: Get all temporary cart items for a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Cart items
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.TempCart'
+                  type: array
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/handler.WebResponse'
+      security:
+      - BearerAuth: []
+      summary: Get cart items by user ID
+      tags:
+      - Cart
+  /transaction:
+    get:
+      description: Retrieve all transactions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transactions list
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.Transaction'
+                  type: array
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get all transactions
+      tags:
+      - Transactions
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
