@@ -162,15 +162,59 @@ func (repo *ProductRepositoryImpl) Update(ctx context.Context, data entity.Produ
 		return err
 	}
 
-	// Update or insert varians
-	if len(varians) > 0 {
-		for _, varian := range varians {
-			// Check if varian exists
-			var existingVarian varian_repository.VarianInsert
-			err := tx.WithContext(ctx).Table("product_varians").Where("product_varian_id = ?", varian.ProductVarianId).First(&existingVarian).Error
+	// Sync variants
+	// 1. Get existing variant IDs
+	var existingVariantIds []string
+	err = tx.WithContext(ctx).Table("product_varians").Where("product_id = ?", data.ProductId).Pluck("product_varian_id", &existingVariantIds).Error
+	if err != nil {
+		return err
+	}
 
-			if err == gorm.ErrRecordNotFound {
-				// Insert new varian
+	// 2. Collect incoming variant IDs
+	incomingVariantIds := make(map[string]bool)
+	for _, v := range varians {
+		if v.ProductVarianId != "" {
+			incomingVariantIds[v.ProductVarianId] = true
+		}
+	}
+
+	// 3. Delete variants that are not in incoming list
+	for _, id := range existingVariantIds {
+		if !incomingVariantIds[id] {
+			err = tx.WithContext(ctx).Table("product_varians").Where("product_varian_id = ?", id).Delete(&varian_repository.VarianInsert{}).Error
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// 4. Upsert incoming variants
+	for _, varian := range varians {
+		if varian.ProductVarianId == "" {
+			// Insert new varian
+			// Generate UUID if empty
+			varian.ProductVarianId = helpers.GenUUID()
+
+			varianData := &varian_repository.VarianInsert{
+				ProductVarianId:           varian.ProductVarianId,
+				ProductId:                 data.ProductId,
+				VarianId:                  varian.VarianId,
+				VarianName:                varian.VarianName,
+				ProductVarianPrice:        varian.ProductVarianPrice,
+				ProductVarianQtyBooth:     varian.ProductVarianQtyBooth,
+				ProductVarianQtyWarehouse: varian.ProductVarianQtyWarehouse,
+			}
+			err = tx.WithContext(ctx).Table("product_varians").Create(&varianData).Error
+			if err != nil {
+				return err
+			}
+		} else {
+			// Check if exists to decide Update or Insert (in case ID is provided but not in DB)
+			var count int64
+			tx.WithContext(ctx).Table("product_varians").Where("product_varian_id = ?", varian.ProductVarianId).Count(&count)
+
+			if count == 0 {
+				// Insert with provided ID
 				varianData := &varian_repository.VarianInsert{
 					ProductVarianId:           varian.ProductVarianId,
 					ProductId:                 data.ProductId,
@@ -184,8 +228,8 @@ func (repo *ProductRepositoryImpl) Update(ctx context.Context, data entity.Produ
 				if err != nil {
 					return err
 				}
-			} else if err == nil {
-				// Update existing varian
+			} else {
+				// Update existing
 				updateVarianData := map[string]interface{}{
 					"varian_id":                    varian.VarianId,
 					"varian_name":                  varian.VarianName,
@@ -197,8 +241,6 @@ func (repo *ProductRepositoryImpl) Update(ctx context.Context, data entity.Produ
 				if err != nil {
 					return err
 				}
-			} else {
-				return err
 			}
 		}
 	}

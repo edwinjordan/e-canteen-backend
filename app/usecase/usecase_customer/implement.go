@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/edwinjordan/e-canteen-backend/app/repository"
+	"github.com/edwinjordan/e-canteen-backend/app/service"
 	"github.com/edwinjordan/e-canteen-backend/config"
 	"github.com/edwinjordan/e-canteen-backend/entity"
 	"github.com/edwinjordan/e-canteen-backend/handler"
@@ -27,24 +28,59 @@ type UseCaseImpl struct {
 	UserOTPRepository  repository.UserOTPRepository
 	TempCartRepository repository.TempCartRepository
 	UserLogRepository  repository.UserLogRepository
+	MinioService       service.MinioService
 	Validate           *validator.Validate
 }
 
-func NewUseCase(customerRepo repository.CustomerRepository, otpRepo repository.UserOTPRepository, tempCartRepo repository.TempCartRepository, userLogRepo repository.UserLogRepository, validate *validator.Validate) UseCase {
+func NewUseCase(customerRepo repository.CustomerRepository, otpRepo repository.UserOTPRepository, tempCartRepo repository.TempCartRepository, userLogRepo repository.UserLogRepository, minioService service.MinioService, validate *validator.Validate) UseCase {
 	return &UseCaseImpl{
 		Validate:           validate,
 		CustomerRepository: customerRepo,
 		UserOTPRepository:  otpRepo,
 		TempCartRepository: tempCartRepo,
 		UserLogRepository:  userLogRepo,
+		MinioService:       minioService,
 	}
 }
 
 func (controller *UseCaseImpl) Register(w http.ResponseWriter, r *http.Request) {
-	dataRequest := entity.Customer{}
-	helpers.ReadFromRequestBody(r, &dataRequest)
+	// Parse multipart form
+	err := r.ParseMultipartForm(10 << 20) // 10 MB limit
+	if err != nil {
+		panic(exceptions.NewBadRequestError("Gagal memproses data: " + err.Error()))
+	}
 
-	err := controller.Validate.Struct(dataRequest)
+	dataRequest := entity.Customer{}
+	dataRequest.CustomerName = r.FormValue("customer_name")
+	dataRequest.CustomerEmail = r.FormValue("customer_email")
+	dataRequest.CustomerPhonenumber = r.FormValue("customer_phonenumber")
+	dataRequest.CustomerGender = r.FormValue("customer_gender")
+	dataRequest.CustomerMajorId = r.FormValue("customer_major_id")
+	dataRequest.CustomerClass = r.FormValue("customer_class")
+	dataRequest.CustomerPassword = r.FormValue("customer_password")
+
+	dob := r.FormValue("customer_dob")
+	if dob != "" {
+		dataRequest.CustomerDob = sql.NullString{String: dob, Valid: true}
+	}
+
+	// Handle Image Upload
+	file, header, err := r.FormFile("image")
+	if err == nil {
+		defer file.Close()
+		// Upload to MinIO
+		uploadedPath, err := controller.MinioService.UploadFile(r.Context(), header, "customers")
+		if err != nil {
+			panic(exceptions.NewInternalServerError("Gagal mengunggah gambar: " + err.Error()))
+		}
+
+		dataRequest.CustomerProfilePicPath = uploadedPath
+		// Get URL
+		url, _ := controller.MinioService.GetFileUrl(r.Context(), uploadedPath)
+		dataRequest.CustomerProfilePic = url
+	}
+
+	err = controller.Validate.Struct(dataRequest)
 	helpers.PanicIfError(err)
 
 	/* check if customer phonenumber exist */
@@ -74,19 +110,8 @@ func (controller *UseCaseImpl) Register(w http.ResponseWriter, r *http.Request) 
 	dataRequest.CustomerGender = html.EscapeString(dataRequest.CustomerGender)
 	dataRequest.CustomerMajorId = html.EscapeString(dataRequest.CustomerMajorId)
 	customer := controller.CustomerRepository.Create(r.Context(), dataRequest)
-	/* otp */
-	// rand.Seed(time.Now().UTC().UnixNano())
-	// rdm := fmt.Sprint(rand.Int())
 
-	// otp := controller.UserOTPRepository.Create(r.Context(), entity.UserOTP{
-	// 	OtpCustomerId: customer.CustomerId,
-	// 	OtpNumber:     rdm[:6],
-	// })
-	// /* sent otp */
-	// helpers.SendWhatsapp(r.Context(), map[string]interface{}{
-	// 	"phonenumber": customer.CustomerPhonenumber,
-	// 	"text":        "eCanteen\n\nKode Verifikasi Anda : *" + otp.OtpNumber + "*\nakan berlaku selama 15 menit .\n\nPENTING !!! DEMI KEAMANAN AKUN ANDA, JANGAN BERIKAN KODE RAHASIA INI KEPADA SIAPAPUN,  Terima Kasih.",
-	// })
+	/* otp logic commented out in original code */
 
 	dataResponse := map[string]interface{}{
 		//"otp":      otp,
@@ -103,8 +128,12 @@ func (controller *UseCaseImpl) Register(w http.ResponseWriter, r *http.Request) 
 func (controller *UseCaseImpl) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["customerId"]
-	dataRequest := map[string]interface{}{}
-	helpers.ReadFromRequestBody(r, &dataRequest)
+
+	// Parse multipart form
+	err := r.ParseMultipartForm(10 << 20) // 10 MB limit
+	if err != nil {
+		panic(exceptions.NewBadRequestError("Gagal memproses data: " + err.Error()))
+	}
 
 	customer, err := controller.CustomerRepository.FindById(r.Context(), id)
 	if err != nil {
@@ -114,35 +143,56 @@ func (controller *UseCaseImpl) Update(w http.ResponseWriter, r *http.Request) {
 	password := customer.CustomerPassword
 
 	/* check jika pengguna ingin mengubah kata sandinya */
-	if newPassword, exists := dataRequest["customer_new_password"]; exists && newPassword.(string) != "" {
-
+	newPassword := r.FormValue("customer_new_password")
+	if newPassword != "" {
 		/* check kata sandi lamanya */
-		checkPassword := bcrypt.CompareHashAndPassword([]byte(customer.CustomerPassword), []byte(dataRequest["customer_old_password"].(string)))
+		oldPassword := r.FormValue("customer_old_password")
+		checkPassword := bcrypt.CompareHashAndPassword([]byte(customer.CustomerPassword), []byte(oldPassword))
 
 		if checkPassword != nil {
 			panic(exceptions.NewBadRequestError("Tidak dapat mengubah kata sandi karena kata sandi lama tidak cocok"))
 		}
 
-		password = helpers.EncryptPassword(newPassword.(string))
+		password = helpers.EncryptPassword(newPassword)
+	}
 
+	// Handle Image Upload
+	profilePic := customer.CustomerProfilePic
+	profilePicPath := customer.CustomerProfilePicPath
+
+	file, header, err := r.FormFile("image")
+	if err == nil {
+		defer file.Close()
+		// Upload to MinIO
+		uploadedPath, err := controller.MinioService.UploadFile(r.Context(), header, "customers")
+		if err != nil {
+			panic(exceptions.NewInternalServerError("Gagal mengunggah gambar: " + err.Error()))
+		}
+
+		profilePicPath = uploadedPath
+		// Get URL (optional, or just store path)
+		url, _ := controller.MinioService.GetFileUrl(r.Context(), uploadedPath)
+		profilePic = url
 	}
 
 	dataCustomer := entity.Customer{
-		CustomerName:        html.EscapeString(dataRequest["customer_name"].(string)),
-		CustomerGender:      dataRequest["customer_gender"].(string),
+		CustomerName:        html.EscapeString(r.FormValue("customer_name")),
+		CustomerGender:      r.FormValue("customer_gender"),
 		CustomerPhonenumber: customer.CustomerPhonenumber,
 		CustomerEmail:       customer.CustomerEmail,
 		CustomerDob: sql.NullString{
-			String: dataRequest["customer_dob"].(string),
+			String: r.FormValue("customer_dob"),
 			Valid:  true,
 		},
-		CustomerPassword: password,
-		CustomerClass:    dataRequest["customer_class"].(string),
-		CustomerMajorId:  dataRequest["customer_major_id"].(string),
-		CustomerUpdateAt: helpers.CreateDateTime(),
+		CustomerPassword:       password,
+		CustomerClass:          r.FormValue("customer_class"),
+		CustomerMajorId:        r.FormValue("customer_major_id"),
+		CustomerProfilePic:     profilePic,
+		CustomerProfilePicPath: profilePicPath,
+		CustomerUpdateAt:       helpers.CreateDateTime(),
 	}
 
-	dataResponse := controller.CustomerRepository.Update(r.Context(), []string{"customer_name", "customer_gender", "customer_phonenumber", "customer_email", "customer_dob", "customer_password", "customer_class", "customer_major_id", "customer_update_at"}, dataCustomer, id)
+	dataResponse := controller.CustomerRepository.Update(r.Context(), []string{"customer_name", "customer_gender", "customer_phonenumber", "customer_email", "customer_dob", "customer_password", "customer_class", "customer_major_id", "customer_profile_pic", "customer_profile_pic_path", "customer_update_at"}, dataCustomer, id)
 	webResponse := handler.WebResponse{
 		Error:   false,
 		Message: config.LoadMessage().SuccessUpdateData,

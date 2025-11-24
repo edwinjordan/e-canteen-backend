@@ -1,17 +1,24 @@
 package router
 
 import (
+	"github.com/edwinjordan/e-canteen-backend/app/service"
+	"github.com/edwinjordan/e-canteen-backend/app/usecase/usecase_product"
+	"github.com/edwinjordan/e-canteen-backend/config"
+	"github.com/edwinjordan/e-canteen-backend/repository/product_repository"
 	"github.com/go-playground/validator"
 	"github.com/gorilla/mux"
-	"github.com/edwinjordan/e-canteen-backend/app/usecase/usecase_product"
-	"github.com/edwinjordan/e-canteen-backend/repository/product_repository"
 	"gorm.io/gorm"
 )
 
 // ProductRouter sets up product routes
 func ProductRouter(db *gorm.DB, validate *validator.Validate, router *mux.Router) {
 	productRepository := product_repository.New(db)
-	productController := usecase_product.NewUseCase(productRepository, validate)
+
+	// Initialize MinIO
+	minioClient := config.NewMinioClient()
+	minioService := service.NewMinioService(minioClient)
+
+	productController := usecase_product.NewUseCase(productRepository, minioService, validate)
 
 	// @Summary Get all products
 	// @Description Retrieve all products with their variants

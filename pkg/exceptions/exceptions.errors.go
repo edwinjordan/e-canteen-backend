@@ -3,11 +3,19 @@ package exceptions
 import (
 	"net/http"
 
-	"github.com/go-playground/validator"
 	"github.com/edwinjordan/e-canteen-backend/handler"
 	"github.com/edwinjordan/e-canteen-backend/pkg/helpers"
 	"github.com/edwinjordan/e-canteen-backend/pkg/validations"
+	"github.com/go-playground/validator"
 )
+
+type InternalServerError struct {
+	Error string
+}
+
+func NewInternalServerError(error string) InternalServerError {
+	return InternalServerError{Error: error}
+}
 
 func ErrorHadler(w http.ResponseWriter, r *http.Request, err interface{}) {
 	if notFoundError(w, r, err) {
@@ -90,9 +98,14 @@ func internalServerError(w http.ResponseWriter, r *http.Request, err interface{}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(500)
 
+	message := "Internal Server Error"
+	if exception, ok := err.(InternalServerError); ok {
+		message = exception.Error
+	}
+
 	webResponse := handler.WebResponse{
 		Error:   true,
-		Message: "Internal Server Error",
+		Message: message,
 		// Data:    err,
 	}
 	helpers.WriteToResponseBody(w, webResponse)

@@ -204,7 +204,7 @@ func (repo *CustomerOrderRepositoryImpl) GenInvoice(ctx context.Context) string 
 	return newInv + sort
 }
 
-func (repo *CustomerOrderRepositoryImpl) GetOrderReport(ctx context.Context, startDate, endDate string) []entity.CustomerOrder {
+func (repo *CustomerOrderRepositoryImpl) GetOrderReport(ctx context.Context, startDate, endDate, status string) []entity.CustomerOrder {
 	order := []CustomerOrder{}
 	tx := repo.DB.Begin()
 	defer helpers.CommitOrRollback(tx)
@@ -220,6 +220,11 @@ func (repo *CustomerOrderRepositoryImpl) GetOrderReport(ctx context.Context, sta
 		query = query.Where("DATE(order_create_at) >= ?", startDate)
 	} else if endDate != "" {
 		query = query.Where("DATE(order_create_at) <= ?", endDate)
+	}
+
+	// Add status filter if provided
+	if status != "" {
+		query = query.Where("order_status = ?", status)
 	}
 
 	err := query.Order("order_create_at DESC").Find(&order).Error

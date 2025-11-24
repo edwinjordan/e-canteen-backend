@@ -1,13 +1,15 @@
 package router
 
 import (
-	"github.com/go-playground/validator"
-	"github.com/gorilla/mux"
+	"github.com/edwinjordan/e-canteen-backend/app/service"
 	"github.com/edwinjordan/e-canteen-backend/app/usecase/usecase_customer"
+	"github.com/edwinjordan/e-canteen-backend/config"
 	"github.com/edwinjordan/e-canteen-backend/repository/customer_repository"
 	"github.com/edwinjordan/e-canteen-backend/repository/otp_repository"
 	"github.com/edwinjordan/e-canteen-backend/repository/tempcart_repository"
 	"github.com/edwinjordan/e-canteen-backend/repository/user_repository"
+	"github.com/go-playground/validator"
+	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +19,12 @@ func CustomerRouter(db *gorm.DB, validate *validator.Validate, router *mux.Route
 	otpRepository := otp_repository.New(db)
 	userLogRepository := user_repository.NewLog(db)
 	tempCartRepo := tempcart_repository.New(db)
-	customerController := usecase_customer.NewUseCase(customerRepository, otpRepository, tempCartRepo, userLogRepository, validate)
+
+	// Initialize MinIO
+	minioClient := config.NewMinioClient()
+	minioService := service.NewMinioService(minioClient)
+
+	customerController := usecase_customer.NewUseCase(customerRepository, otpRepository, tempCartRepo, userLogRepository, minioService, validate)
 
 	// @Summary Customer login
 	// @Description Authenticate customer and get JWT token
