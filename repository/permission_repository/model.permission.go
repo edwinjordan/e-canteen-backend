@@ -12,6 +12,9 @@ type Permission struct {
 	PermissionDescription string `gorm:"column:permission_description"`
 	PermissionStatus      string `gorm:"column:permission_status;type:enum('main_menu','submenu','action');default:action;not null"`
 	PermissionParentId    *int   `gorm:"column:permission_parent_id"`
+	PermissionUrutan      int    `gorm:"column:permission_urutan"`
+	PermissionIcon        string `gorm:"column:permission_icon"`
+	PermissionActive      int    `gorm:"column:permission_active"`
 }
 
 func (Permission) TableName() string {
@@ -27,6 +30,9 @@ func (Permission) FromEntity(e *entity.Permission) *Permission {
 		PermissionDescription: e.PermissionDescription,
 		PermissionStatus:      e.PermissionStatus,
 		PermissionParentId:    e.PermissionParentId,
+		PermissionUrutan:      e.PermissionUrutan,
+		PermissionIcon:        e.PermissionIcon,
+		PermissionActive:      e.PermissionActive,
 	}
 }
 
@@ -39,6 +45,9 @@ func (model *Permission) ToEntity() *entity.Permission {
 		PermissionDescription: model.PermissionDescription,
 		PermissionStatus:      model.PermissionStatus,
 		PermissionParentId:    model.PermissionParentId,
+		PermissionUrutan:      model.PermissionUrutan,
+		PermissionIcon:        model.PermissionIcon,
+		PermissionActive:      model.PermissionActive,
 	}
 }
 
@@ -51,5 +60,8 @@ func (model *Permission) ToResponse() *entity.PermissionResponse {
 		PermissionDescription: model.PermissionDescription,
 		PermissionStatus:      model.PermissionStatus,
 		PermissionParentId:    model.PermissionParentId,
+		PermissionUrutan:      model.PermissionUrutan,
+		PermissionIcon:        model.PermissionIcon,
+		PermissionActive:      model.PermissionActive,
 	}
 }

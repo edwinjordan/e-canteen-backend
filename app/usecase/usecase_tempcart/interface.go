@@ -7,4 +7,5 @@ type UseCase interface {
 	Update(w http.ResponseWriter, r *http.Request)
 	Delete(w http.ResponseWriter, r *http.Request)
 	FindByUserId(w http.ResponseWriter, r *http.Request)
+	ClearCart(w http.ResponseWriter, r *http.Request)
 }

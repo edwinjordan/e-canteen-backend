@@ -92,3 +92,10 @@ func (repo *TempCartRepositoryImpl) FindByUserId(ctx context.Context, userId str
 	}
 	return tempData
 }
+
+func (repo *TempCartRepositoryImpl) DeleteByUserId(ctx context.Context, userId string) {
+	tx := repo.DB.Begin()
+	defer helpers.CommitOrRollback(tx)
+	err := tx.WithContext(ctx).Exec("DELETE FROM temp_cart WHERE temp_cart_user_id = ?", userId).Error
+	helpers.PanicIfError(err)
+}

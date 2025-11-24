@@ -1,11 +1,12 @@
 package entity
 
 type DashboardStats struct {
-	TotalSales        float64            `json:"total_sales"`
-	TotalTransactions int                `json:"total_transactions"`
-	TotalCustomers    int                `json:"total_customers"`
-	MonthlySales      []MonthlySalesData `json:"monthly_sales"`
-	TopProducts       []TopProductData   `json:"top_products"`
+	TotalSales            float64            `json:"total_sales"`
+	TotalTransactions     int                `json:"total_transactions"`
+	TotalCustomers        int                `json:"total_customers"`
+	TotalProductCustomers int                `json:"total_product_customers"`
+	MonthlySales          []MonthlySalesData `json:"monthly_sales"`
+	TopProducts           []TopProductData   `json:"top_products"`
 }
 
 type MonthlySalesData struct {

@@ -3,15 +3,15 @@ package main
 import (
 	"net/http"
 
-	"github.com/go-playground/validator"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/mux"
 	"github.com/edwinjordan/e-canteen-backend/config"
 	_ "github.com/edwinjordan/e-canteen-backend/docs"
 	"github.com/edwinjordan/e-canteen-backend/middleware"
 	"github.com/edwinjordan/e-canteen-backend/pkg/helpers"
 	"github.com/edwinjordan/e-canteen-backend/pkg/mysql"
 	"github.com/edwinjordan/e-canteen-backend/router"
+	"github.com/go-playground/validator"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -69,6 +69,7 @@ func main() {
 	router.OrderRouter(db, validate, route)
 	router.DashboardRouter(db, route)
 	router.PermissionRouter(db, validate, route)
+	router.DashboardCustomerRouter(db, route)
 
 	/* Swagger documentation */
 	route.PathPrefix("/swagger/").Handler(httpSwagger.Handler(

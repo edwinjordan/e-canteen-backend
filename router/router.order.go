@@ -1,8 +1,6 @@
 package router
 
 import (
-	"github.com/go-playground/validator"
-	"github.com/gorilla/mux"
 	"github.com/edwinjordan/e-canteen-backend/app/usecase/usecase_order"
 	"github.com/edwinjordan/e-canteen-backend/repository/order_repository"
 	"github.com/edwinjordan/e-canteen-backend/repository/stock_repository"
@@ -10,6 +8,8 @@ import (
 	"github.com/edwinjordan/e-canteen-backend/repository/transaction_repository"
 	"github.com/edwinjordan/e-canteen-backend/repository/user_repository"
 	"github.com/edwinjordan/e-canteen-backend/repository/varian_repository"
+	"github.com/go-playground/validator"
+	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
 
@@ -24,7 +24,7 @@ func OrderRouter(db *gorm.DB, validate *validator.Validate, router *mux.Router) 
 	userRepository := user_repository.New(db)
 	orderController := usecase_order.NewUseCase(orderRepository, orderDetailRepository, varianRepository, tempCartRepo, transRepo, transDetailRepo, stockBoothRepo, userRepository, validate)
 	router.HandleFunc("/api/order", orderController.Create).Methods("POST")
-	router.HandleFunc("/api/order", orderController.FindAll).Methods("GET")
+	router.HandleFunc("/api/order/{customerId}", orderController.FindAll).Methods("GET")
 	router.HandleFunc("/api/order/{orderId}", orderController.FindById).Methods("GET")
 	router.HandleFunc("/api/order_detail", orderController.GetOrderDetail).Methods("GET")
 	router.HandleFunc("/api/order_report", orderController.GetOrderReport).Methods("GET")

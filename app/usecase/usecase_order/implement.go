@@ -7,15 +7,15 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-playground/validator"
-	"github.com/golang-jwt/jwt"
-	"github.com/gorilla/mux"
 	"github.com/edwinjordan/e-canteen-backend/app/repository"
 	"github.com/edwinjordan/e-canteen-backend/config"
 	"github.com/edwinjordan/e-canteen-backend/entity"
 	"github.com/edwinjordan/e-canteen-backend/handler"
 	"github.com/edwinjordan/e-canteen-backend/pkg/exceptions"
 	"github.com/edwinjordan/e-canteen-backend/pkg/helpers"
+	"github.com/go-playground/validator"
+	"github.com/golang-jwt/jwt"
+	"github.com/gorilla/mux"
 )
 
 type UseCaseImpl struct {
@@ -215,19 +215,20 @@ func (controller *UseCaseImpl) FindById(w http.ResponseWriter, r *http.Request) 
 }
 
 func (controller *UseCaseImpl) FindAll(w http.ResponseWriter, r *http.Request) {
-	vars := r.URL.Query()
+	vars := mux.Vars(r)
+	query := r.URL.Query()
 	where := entity.CustomerOrder{}
 
-	if vars.Get("order_customer_id") != "" {
-		where.OrderCustomerId = vars.Get("order_customer_id")
+	if vars["customerId"] != "" {
+		where.OrderCustomerId = vars["customerId"]
 	}
-	if vars.Get("status") != "" {
-		status, _ := strconv.Atoi(vars.Get("status"))
+	if query.Get("status") != "" {
+		status, _ := strconv.Atoi(query.Get("status"))
 		where.OrderStatus = status
 	}
 
-	Qlimit := vars.Get("limit")
-	Qoffset := vars.Get("offset")
+	Qlimit := query.Get("limit")
+	Qoffset := query.Get("offset")
 
 	if Qlimit == "" {
 		Qlimit = "10"
@@ -243,8 +244,10 @@ func (controller *UseCaseImpl) FindAll(w http.ResponseWriter, r *http.Request) {
 	nextOffset := limit + offset
 
 	conf := map[string]interface{}{
-		"limit":  limit,
-		"offset": offset,
+		"limit":      limit,
+		"offset":     offset,
+		"start_date": query.Get("startDate"),
+		"end_date":   query.Get("endDate"),
 	}
 
 	w.Header().Add("offset", fmt.Sprint(nextOffset))

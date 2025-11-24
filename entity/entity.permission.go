@@ -8,6 +8,9 @@ type Permission struct {
 	PermissionDescription string `json:"permission_description,omitempty"`
 	PermissionStatus      string `json:"permission_status"`
 	PermissionParentId    *int   `json:"permission_parent_id,omitempty"`
+	PermissionUrutan      int    `json:"permission_urutan"`
+	PermissionIcon        string `json:"permission_icon"`
+	PermissionActive      int    `json:"permission_active"`
 }
 
 type PermissionResponse struct {
@@ -18,6 +21,9 @@ type PermissionResponse struct {
 	PermissionDescription string `json:"permission_description,omitempty"`
 	PermissionStatus      string `json:"permission_status"`
 	PermissionParentId    *int   `json:"permission_parent_id,omitempty"`
+	PermissionUrutan      int    `json:"permission_urutan"`
+	PermissionIcon        string `json:"permission_icon"`
+	PermissionActive      int    `json:"permission_active"`
 }
 
 type CreatePermissionRequest struct {
@@ -40,12 +46,15 @@ type UpdatePermissionRequest struct {
 
 // PermissionTreeNode represents a hierarchical permission structure
 type PermissionTreeNode struct {
-	PermissionId          int                    `json:"permission_id"`
-	PermissionName        string                 `json:"permission_name"`
-	PermissionResource    string                 `json:"permission_resource"`
-	PermissionAction      string                 `json:"permission_action"`
-	PermissionDescription string                 `json:"permission_description,omitempty"`
-	PermissionStatus      string                 `json:"permission_status"`
-	PermissionParentId    *int                   `json:"permission_parent_id,omitempty"`
-	Children              []*PermissionTreeNode  `json:"children,omitempty"`
+	PermissionId          int                   `json:"permission_id"`
+	PermissionName        string                `json:"permission_name"`
+	PermissionResource    string                `json:"permission_resource"`
+	PermissionAction      string                `json:"permission_action"`
+	PermissionDescription string                `json:"permission_description,omitempty"`
+	PermissionStatus      string                `json:"permission_status"`
+	PermissionParentId    *int                  `json:"permission_parent_id,omitempty"`
+	PermissionUrutan      int                   `json:"permission_urutan"`
+	PermissionIcon        string                `json:"permission_icon"`
+	PermissionActive      int                   `json:"permission_active"`
+	Children              []*PermissionTreeNode `json:"children,omitempty"`
 }

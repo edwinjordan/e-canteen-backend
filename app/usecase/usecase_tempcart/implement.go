@@ -3,14 +3,14 @@ package usecase_tempcart
 import (
 	"net/http"
 
-	"github.com/go-playground/validator"
-	"github.com/gorilla/mux"
 	"github.com/edwinjordan/e-canteen-backend/app/repository"
 	"github.com/edwinjordan/e-canteen-backend/config"
 	"github.com/edwinjordan/e-canteen-backend/entity"
 	"github.com/edwinjordan/e-canteen-backend/handler"
 	"github.com/edwinjordan/e-canteen-backend/pkg/exceptions"
 	"github.com/edwinjordan/e-canteen-backend/pkg/helpers"
+	"github.com/go-playground/validator"
+	"github.com/gorilla/mux"
 )
 
 type UseCaseImpl struct {
@@ -137,6 +137,23 @@ func (controller *UseCaseImpl) FindByUserId(w http.ResponseWriter, r *http.Reque
 		Error:   false,
 		Message: config.LoadMessage().SuccessGetData,
 		Data:    dataResponse,
+	}
+	helpers.WriteToResponseBody(w, webResponse)
+}
+
+func (controller *UseCaseImpl) ClearCart(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userId := vars["userId"]
+
+	if userId == "" {
+		panic(exceptions.NewBadRequestError("Parameter userId diperlukan"))
+	}
+
+	controller.TempCartRepository.DeleteByUserId(r.Context(), userId)
+
+	webResponse := handler.WebResponse{
+		Error:   false,
+		Message: config.LoadMessage().SuccessDeleteData,
 	}
 	helpers.WriteToResponseBody(w, webResponse)
 }

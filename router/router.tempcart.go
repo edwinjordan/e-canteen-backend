@@ -1,11 +1,11 @@
 package router
 
 import (
-	"github.com/go-playground/validator"
-	"github.com/gorilla/mux"
 	"github.com/edwinjordan/e-canteen-backend/app/usecase/usecase_tempcart"
 	"github.com/edwinjordan/e-canteen-backend/repository/tempcart_repository"
 	"github.com/edwinjordan/e-canteen-backend/repository/varian_repository"
+	"github.com/go-playground/validator"
+	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
 
@@ -50,6 +50,17 @@ func TempCartRouter(db *gorm.DB, validate *validator.Validate, router *mux.Route
 	// @Failure 404 {object} handler.WebResponse "Cart item not found"
 	// @Router /tempcart/{productVarianId}/{userId} [put]
 	router.HandleFunc("/api/tempcart/{productVarianId}/{userId}", tempCartController.Update).Methods("PUT")
+
+	// @Summary Clear cart by user ID
+	// @Description Remove all items from temporary cart for a specific user
+	// @Tags Cart
+	// @Produce json
+	// @Security BearerAuth
+	// @Param userId path string true "User ID"
+	// @Success 200 {object} handler.WebResponse "Cart cleared"
+	// @Failure 400 {object} handler.WebResponse "Invalid request"
+	// @Router /tempcart/clear/{userId} [delete]
+	router.HandleFunc("/api/tempcart/clear/{userId}", tempCartController.ClearCart).Methods("DELETE")
 
 	// @Summary Remove item from cart
 	// @Description Remove product variant from temporary cart

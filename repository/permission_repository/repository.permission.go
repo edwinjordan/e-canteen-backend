@@ -140,7 +140,7 @@ func (repo *PermissionRepositoryImpl) FindByRoleAsTree(ctx context.Context, role
 	err := tx.WithContext(ctx).
 		Joins("INNER JOIN permission_role ON permission_role.permission_id = permissions.permission_id").
 		Where("permission_role.role_id = ?", roleId).
-		Order("permission_parent_id ASC, permission_id ASC").
+		Order("permissions.permission_urutan ASC").
 		Find(&permissions).Error
 	helpers.PanicIfError(err)
 
@@ -158,6 +158,9 @@ func (repo *PermissionRepositoryImpl) FindByRoleAsTree(ctx context.Context, role
 			PermissionDescription: p.PermissionDescription,
 			PermissionStatus:      p.PermissionStatus,
 			PermissionParentId:    p.PermissionParentId,
+			PermissionUrutan:      p.PermissionUrutan,
+			PermissionIcon:        p.PermissionIcon,
+			PermissionActive:      p.PermissionActive,
 			Children:              []*entity.PermissionTreeNode{},
 		}
 		nodeMap[p.PermissionId] = node
@@ -181,4 +184,3 @@ func (repo *PermissionRepositoryImpl) FindByRoleAsTree(ctx context.Context, role
 
 	return rootNodes
 }
-

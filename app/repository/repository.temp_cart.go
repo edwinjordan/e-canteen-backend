@@ -13,4 +13,5 @@ type TempCartRepository interface {
 	DeleteSpesificData(ctx context.Context, data entity.TempCart)
 	FindSpesificData(ctx context.Context, where entity.TempCart) []entity.TempCart
 	FindByUserId(ctx context.Context, userId string) []entity.TempCart
+	DeleteByUserId(ctx context.Context, userId string)
 }

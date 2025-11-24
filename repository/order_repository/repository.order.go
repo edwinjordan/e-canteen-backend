@@ -91,11 +91,11 @@ func (repo *CustomerOrderRepositoryImpl) FindById(ctx context.Context, orderId s
 	return *result, nil
 }
 
-func (repo *CustomerOrderRepositoryImpl) FindAll(ctx context.Context) []entity.CustomerOrder {
+func (repo *CustomerOrderRepositoryImpl) FindAll(ctx context.Context, customerId string) []entity.CustomerOrder {
 	order := []CustomerOrder{}
 	tx := repo.DB.Begin()
 	defer helpers.CommitOrRollback(tx)
-	err := tx.WithContext(ctx).Find(&order).Error
+	err := tx.WithContext(ctx).Where("order_customer_id = ?", customerId).Find(&order).Error
 	helpers.PanicIfError(err)
 
 	var tempData []entity.CustomerOrder
@@ -120,14 +120,25 @@ func (repo *CustomerOrderRepositoryImpl) FindSpesificData(ctx context.Context, w
 		orderString = "order_processed_datetime DESC"
 	}
 
-	err := tx.WithContext(ctx).
+	query := tx.WithContext(ctx).
 		Limit(config["limit"].(int)).
 		Offset(config["offset"].(int)).
 		Order(orderString).
 		Where(orderWhere).
 		Preload("Address").
-		Preload("Customer").
-		Find(&order).Error
+		Preload("Customer")
+
+	if val, ok := config["start_date"].(string); ok && val != "" {
+		if val2, ok2 := config["end_date"].(string); ok2 && val2 != "" {
+			query = query.Where("order_create_at BETWEEN ? AND ?", val, val2)
+		} else {
+			query = query.Where("order_create_at >= ?", val)
+		}
+	} else if val, ok := config["end_date"].(string); ok && val != "" {
+		query = query.Where("order_create_at <= ?", val)
+	}
+
+	err := query.Find(&order).Error
 	helpers.PanicIfError(err)
 
 	var tempData []entity.CustomerOrder
