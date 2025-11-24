@@ -656,12 +656,9 @@ func (controller *UseCaseImpl) OrderFinished(w http.ResponseWriter, r *http.Requ
 func (controller *UseCaseImpl) GetOrderReport(w http.ResponseWriter, r *http.Request) {
 	startDate := r.URL.Query().Get("start_date")
 	endDate := r.URL.Query().Get("end_date")
+	status := r.URL.Query().Get("status")
 
-	if startDate == "" && endDate == "" {
-		panic(exceptions.NewBadRequestError("Parameter start_date atau end_date diperlukan"))
-	}
-
-	dataResponse := controller.CustomerOrderRepository.GetOrderReport(r.Context(), startDate, endDate)
+	dataResponse := controller.CustomerOrderRepository.GetOrderReport(r.Context(), startDate, endDate, status)
 
 	webResponse := handler.WebResponse{
 		Error:   false,

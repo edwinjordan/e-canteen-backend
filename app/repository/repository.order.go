@@ -14,5 +14,5 @@ type CustomerOrderRepository interface {
 	FindAll(ctx context.Context, customerId string) []entity.CustomerOrder
 	FindSpesificData(ctx context.Context, where entity.CustomerOrder, conf map[string]interface{}) []entity.CustomerOrder
 	GenInvoice(ctx context.Context) string
-	GetOrderReport(ctx context.Context, startDate, endDate string) []entity.CustomerOrder
+	GetOrderReport(ctx context.Context, startDate, endDate, status string) []entity.CustomerOrder
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/edwinjordan/e-canteen-backend/app/service"
 	"github.com/edwinjordan/e-canteen-backend/config"
 	_ "github.com/edwinjordan/e-canteen-backend/docs"
 	"github.com/edwinjordan/e-canteen-backend/middleware"
@@ -37,6 +38,11 @@ import (
 func main() {
 	validate := validator.New()
 	db := mysql.DBConnectGorm()
+
+	// Initialize MinIO
+	minioClient := config.NewMinioClient()
+	_ = service.NewMinioService(minioClient) // Initialize service (and create bucket if needed)
+
 	route := mux.NewRouter()
 
 	/* setting cors */
